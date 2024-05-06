@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Список дел</title>
+<style>
+body {
+    background-color: #AFEEEE; 
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+}
+
+#taskInput {
+    margin-bottom: 10px; 
+    height: 20px; 
+}
+
+.completed {
+    text-decoration: line-through;
+}
+
+#taskContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.sortContainer {
+    margin-top: 20px; 
+}
+
+.buttons-container {
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.buttons-container button {
+    margin-bottom: 10px;
+}
+
+#taskList {
+    list-style: none;
+    padding: 0;
+}
+
+#taskList li {
+    background-color: white;
+    padding: 5px;
+    margin-bottom: 5px;
+}
+</style>
+</head>
+<body>
+<h1>Список дел</h1>
+<div id="taskContainer">
+<div class="buttons-container">
+    <textarea id="taskInput"></textarea>
+    <button onclick="addTask()">Добавить задачу</button>
+    <button onclick="deleteAllTasks()">Удалить все задачи</button>
+</div>
+<ul id="taskList"></ul>
+</div>
+<div class="sortContainer">
+<a href="#" onclick="setFilter('all')">ВСЕ</a>
+<a href="#" onclick="setFilter('completed')">Завершенные</a>
+<a href="#" onclick="setFilter('incomplete')">Незавершенные</a>
+<select id="sortSelect" onchange="sortTasks()">
+    <option value="default">Сортировка по дефолту</option>
+    <option value="alphabetical">Сортировка по алфавиту</option>
+</select>
+</div>
+
+<script>
+// Определение типов данных TypeScript
+interface Task {
+    name: string;
+    completed: boolean;
+}
+
+type FilterType = 'all' | 'completed' | 'incomplete';
+
+// Массив задач
+let tasks: Task[] = [];
+let currentFilter: FilterType = 'all';
+
+// Функция для рендеринга задач в списке
+function renderTasks() {
+    const taskList = document.getElementById('taskList');
+    if (!taskList) return;
+
+    taskList.innerHTML = '';
+
+    let filteredTasks = tasks;
+    if (currentFilter === 'completed') {
+        filteredTasks = tasks.filter(task => task.completed);
+    } else if (currentFilter === 'incomplete') {
+        filteredTasks = tasks.filter(task => !task.completed);
+    }
+
+    filteredTasks.forEach(task => {
+        const listItem = document.createElement('li');
+        listItem.textContent = task.name;
+        if (task.completed) {
+            listItem.classList.add('completed');
+        }
+        listItem.onclick = () => {
+            task.completed = !task.completed;
+            renderTasks();
+        };
+        taskList.appendChild(listItem);
+    });
+}
+
+// Функция для добавления новой задачи
+function addTask() {
+    const taskInput = document.getElementById('taskInput') as HTMLTextAreaElement;
+    const taskName = taskInput.value.trim();
+    if (taskName !== '') {
+        tasks.push({ name: taskName, completed: false });
+        taskInput.value = '';
+        renderTasks();
+    }
+}
+
+// Функция для удаления всех задач
+function deleteAllTasks() {
+    tasks = [];
+    renderTasks();
+}
+
+// Функция для установки фильтра задач
+function setFilter(filter: FilterType) {
+    currentFilter = filter;
+    renderTasks();
+}
+
+// Функция для сортировки задач
+function sortTasks() {
+    const sortSelect = document.getElementById('sortSelect') as HTMLSelectElement;
+    const sortOption = sortSelect.value;
+    if (sortOption === 'alphabetical') {
+        tasks.sort((a, b) => a.name.localeCompare(b.name));
+    } else {
+        // Сортировка по порядку добавления
+        tasks.sort((a, b) => tasks.indexOf(a) - tasks.indexOf(b));
+    }
+    renderTasks();
+}
+
+// Инициализация рендеринга задач при загрузке страницы
+window.onload = () => {
+    renderTasks();
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+Задача 1
+
+import React from 'react';
+
+const Square = ({ n }) => {
+    // Вычисляем квадрат числа n
+    const squareValue = n * n;
+
+    return (
+        <div>
+            {/* Выводим квадрат переданного числа */}
+            <p>Квадрат числа {n} равен {squareValue}</p>
+        </div>
+    );
+};
+
+export default Square;
+
+Задача 2
+
+import React from 'react';
+
+const OnlyEven = ({ arr }) => {
+    // Фильтруем массив, оставляя только чётные числа
+    const evenNumbers = arr.filter(num => num % 2 === 0);
+
+    return (
+        <div>
+            <p>{evenNumbers.join(', ')}</p>
+        </div>
+    );
+};
+
+export default OnlyEven;
+
+Задача 3
+
+import React from 'react';
+
+const Temperature = ({ t }) => {
+    const textStyle = {
+        color: t < 0 ? 'blue' : 'red', // Установка цвета текста в зависимости от температуры
+        fontSize: '24px', // Размер шрифта
+        fontWeight: 'bold', // Жирный шрифт
+    };
+
+    return (
+        <div>
+            <p style={textStyle}>{t}&deg;C</p>
+        </div>
+    );
+};
+
+export default Temperature;
+
+Задача 4
+
+import React, { useState } from 'react';
+
+const ColorChangingButton = () => {
+    // Используем useState для хранения состояния цвета фона
+    const [isRed, setIsRed] = useState(true); // Начальное значение - красный
+
+    const handleButtonClick = () => {
+        // Переключаем цвет фона
+        setIsRed(!isRed);
+    };
+
+    // Определяем стили в зависимости от текущего состояния isRed
+    const buttonStyle = {
+        padding: '10px 20px',
+        fontSize: '16px',
+        color: 'white',
+        backgroundColor: isRed ? 'red' : 'green', // Устанавливаем цвет фона
+        border: 'none',
+        borderRadius: '5px',
+        cursor: 'pointer',
+    };
+
+    return (
+        <div>
+            <button style={buttonStyle} onClick={handleButtonClick}>
+                {isRed ? 'Сделать зелёным' : 'Сделать красным'}
+            </button>
+        </div>
+    );
+};
+
+export default ColorChangingButton;

@@ -1,0 +1,206 @@
+Задача 1
+
+export interface User {
+    name: string;
+    age: number;
+    occupation: string;
+}
+
+export const users: User[] = [
+    {
+        name: 'Max Mustermann',
+        age: 25,
+        occupation: 'Chimney sweep'
+    },
+    {
+        name: 'Kate Müller',
+        age: 23,
+        occupation: 'Astronaut'
+    }
+];
+
+export function logPerson(user: User) {
+    console.log(` - ${user.name}, ${user.age}`);
+}
+
+console.log('Users:');
+users.forEach(logPerson);
+
+Задача 2
+
+Определение типа Teacher:
+Teacher должен содержать поля id, name, level и courses.
+courses должен быть объектом, где ключом является id курса, а значением - объект с данными курса, включая роль учителя.
+
+type TeacherCourse = Course & WithTeacherRole;
+
+type Teacher = User & {
+    level: "junior" | "middle" | "senior";
+    courses: { [id: number]: TeacherCourse };
+};
+Определение типа Director:
+Director должен содержать поля id, name, students и teachers.
+students должен быть объектом, где ключом является id студента, а значением - объект с данными студента.
+teachers должен быть объектом, где ключом является id учителя, а значением - объект с данными учителя, включая оценку.
+
+type Director = User & {
+    students: { [id: string]: User };
+    teachers: { [id: string]: Teacher & WithRate };
+};
+Теперь, когда типы Teacher и Director определены, давайте проверим их, используя переменные t1 и d1:
+
+const t1: Teacher = {
+    id: "t1",
+    name: "t1",
+    level: "junior",
+    courses: {
+        [5]: {
+            id: 5,
+            title: "Fifth",
+            role: "teacher"
+        },
+        [1]: {
+            ...s1.courses[1], // Используем информацию о курсе из студента s1
+            role: "teacher"
+        }
+    }
+};
+
+const d1: Director = {
+    id: "d1",
+    name: "d1",
+    students: {
+        ["s1"]: s1,
+        ["s2"]: {
+            id: "s2",
+            name: "s2"
+        }
+    },
+    teachers: {
+        ["t1"]: {
+            ...t1,
+            rate: 3, // Добавляем оценку для учителя t1
+        },
+        ["t2"]: {
+            id: "t2",
+            name: "t2",
+            level: "senior",
+            rate: 5
+        }
+    }
+};
+
+Задача 3
+
+Типизация функции zip
+
+function zip<T, U>(first: T[], second: U[]): Array<[T, U]> {
+    const minLength = Math.min(first.length, second.length);
+    const result: Array<[T, U]> = [];
+    for (let i = 0; i < minLength; i++) {
+        result.push([first[i], second[i]]);
+    }
+    return result;
+}
+
+const q1: Array<[number, string]> = zip([1, 2, 3, 4, 5, 6], ["1", "2", "3"]);
+const q2: Array<[boolean, boolean]> = zip([true], [false, false]);
+console.log(q1, q2);
+
+Типизация функции groupBy
+
+function groupBy<T, K, V>(
+    source: T[],
+    keySelector: (item: T, index: number) => K,
+    valueSelector: (item: T, index: number) => V
+): Map<K, V[]> {
+    const result = new Map<K, V[]>();
+    for (let i = 0; i < source.length; i++) {
+        const item = source[i];
+        const key = keySelector(item, i);
+        const value = valueSelector(item, i);
+        if (!result.has(key)) {
+            result.set(key, []);
+        }
+        result.get(key)!.push(value); // использование "!" для преобразования null и undefined в массив
+    }
+    return result;
+}
+
+const q1: Map<number, number[]> = groupBy([1, 2, 3, 4], x => x % 2, x => x + 1);
+const q2: Map<boolean, {x: string, i: number}[]> = groupBy(["aaa", "bbb", "cc", "q", "lalaka"], (_, i) => i % 2 === 0, (x, i) => ({ i, x }));
+console.log(q1, q2);
+
+Задача 4
+
+Мы можем собрать тип Teacher, который содержит все поля типа User, а также опциональное поле courses, представляющее словарь курсов учителя.
+
+type Teacher = Partial<User> & {
+    courses?: Partial<{ [id: number]: Omit<Course, "role"> }>;
+};
+
+Тип Director должен содержать все поля User и два словаря: students и teachers.
+
+type Director = Partial<User> & {
+    students?: Partial<{ [id: string]: Student }>;
+    teachers?: Partial<{ [id: string]: Partial<Teacher> & { rate?: Rate } }>;
+};
+
+Проверка типов
+
+const s1: Student = {
+    id: "s1",
+    name: "s1",
+    courses: {
+        [1]: {
+            id: 1,
+            title: "First",
+            rate: 5,
+            role: "student",
+            level: "middle"
+        }
+    }
+};
+
+const t1: Teacher = {
+    id: "t1",
+    name: "t1",
+    level: "junior",
+    courses: {
+        [5]: {
+            id: 5,
+            title: "Fifth",
+            rate: 0, // Произвольное значение, так как не задано в исходных данных
+            level: "senior"
+        },
+        [1]: {
+            ...s1.courses[1],
+            role: "teacher"
+        }
+    }
+};
+
+const d1: Director = {
+    id: "d1",
+    name: "d1",
+    students: {
+        ["s1"]: s1,
+        ["s2"]: {
+            id: "s2",
+            name: "s2"
+        }
+    },
+    teachers: {
+        ["t1"]: {
+            ...t1,
+            rate: 3,
+        },
+        ["t2"]: {
+            id: "t2",
+            name: "t2",
+            level: "senior",
+            rate: 5
+        }
+    }
+};
+
